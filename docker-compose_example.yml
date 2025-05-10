@@ -1,0 +1,9 @@
+services:
+  gui:
+    build: .
+    ports:
+      - "8501:8501"
+    environment:
+      AUTH_LOGIN: a
+      AUTH_PASSWORD: a
+      PREDICTION_ADDRESS: http://host.docker.internal:8000/predict
