@@ -1,0 +1,11 @@
+Month,WeekOfMonth,Make,AccidentArea,MonthClaimed,MaritalStatus,Fault,PolicyType,VehicleCategory,Deductible,PoliceReportFiled,AgentType,AddressChange_Claim,Year,BasePolicy
+Jul,3,Toyota,Urban,Dec,Married,Policy Holder,Sedan,Sedan,700,No,External,no change,1996,All Perils
+Apr,4,Toyota,Urban,May,Single,Third Party,Sedan - Collision,Sedan,700,No,External,no change,1996,Collision
+Jul,1,Toyota,Urban,Jul,Married,Policy Holder,Sedan - Liability,Sport,700,No,External,no change,1994,Liability
+May,3,Chevrolet,Urban,May,Married,Policy Holder,Sedan - Liability,Sport,700,No,External,no change,1994,Liability
+Mar,2,Accura,Urban,Mar,Married,Policy Holder,Sedan,Sedan,700,No,External,no change,2005,All Perils
+Jun,3,Mazda,Urban,Jun,Married,Third Party,Sedan - Collision,Sedan,700,No,External,no change,2005,Collision
+May,4,Pontiac,Urban,Jun,Single,Policy Holder,Sedan - Liability,Sport,700,No,External,no change,2005,Liability
+Jan,5,Toyota,Urban,May,Married,Policy Holder,Sedan - Collision,Sedan,700,No,External,no change,2005,Collision
+Jun,1,Mazda,Urban,Jun,Married,Policy Holder,Sedan - Collision,Sedan,700,No,External,4 to 8 years,1996,Collision
+Feb,4,Toyota,Urban,Mar,Married,Policy Holder,Sedan - Collision,Sedan,700,No,External,no change,1994,Collision

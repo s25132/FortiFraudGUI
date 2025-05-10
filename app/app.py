@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from utils.request import send_post_request
+from datetime import datetime
 
 def get_form():
     st.set_page_config(page_title="FortiFraud")
@@ -117,7 +118,7 @@ def get_csv_upload():
                     result_df = pd.DataFrame(predictions)
                     result_df.drop(columns=["status"], inplace=True)
                     st.dataframe(result_df)
-                    st.download_button("Pobierz wyniki CSV", result_df.to_csv(index=False), file_name="predictions.csv", mime="text/csv")
+                    st.download_button("Pobierz wyniki CSV", result_df.to_csv(index=False), file_name="predictions" + "_" + datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + ".csv", mime="text/csv")
         except Exception as e:
             st.error(f"Błąd wczytywania pliku: {e}")
 
