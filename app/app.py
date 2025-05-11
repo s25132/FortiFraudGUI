@@ -3,13 +3,39 @@ import pandas as pd
 from utils.request import send_post_request
 from datetime import datetime
 
-def get_form():
+def configure_app():
     st.set_page_config(page_title="FortiFraud")
+
+def validate_form_data(data):
+    errors = []
+    required_fields = {
+        "Make": "Pole 'Make' (producent pojazdu) nie może być puste.",
+        "Month": "Wybierz miesiąc.",
+        "WeekOfMonth": "Wybierz tydzień miesiąca.",
+        "AccidentArea": "Wybierz obszar wypadku.",
+        "MonthClaimed": "Wybierz miesiąc wypadku.",
+        "MaritalStatus": "Wybierz stan cywilny.",
+        "Fault": "Wybierz rodzaj wypadku.",
+        "VehicleCategory": "Wybierz kategorię pojazdu.",
+        "PolicyType": "Wybierz typ polisy.",
+        "Deductible": "Wybierz kwotę odsetek.",
+        "BasePolicy": "Wybierz rodzaj polisy.",
+        "AddressChange_Claim": "Wybierz rodzaj zmiany adresu.",
+        "AgentType": "Wybierz rodzaj agenta.",
+        "PoliceReportFiled": "Wybierz czy została zgłoszona reklamacja."
+    }
+    for field, error_message in required_fields.items():
+        if data.get(field, "") == "":
+            errors.append(error_message)
+    return errors
+
+def handle_prediction_form():
+    configure_app()
     st.title("Wpisz dane :")
 
     with st.form("insurance_form"):
         month = st.selectbox("Month", ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"])
-        week_of_month = st.selectbox("WeekOfMonth", ["", 1, 2, 3, 4, 5, 6 ,7])
+        week_of_month = st.selectbox("WeekOfMonth", ["", 1, 2, 3, 4, 5, 6, 7])
         make = st.selectbox("Make", ["", "Pontiac", "Toyota", "Honda", "Mazda", "Chevrolet", "Accura", "Ford", "VW", "Dodge", "Saab", "Mercury", "Saturn", "Nisson", "BMW", "Jaguar", "Porche", "Mecedes", "Ferrari", "Lexus"])
         accident_area = st.selectbox("AccidentArea", ["", "Urban", "Rural"])
         month_claimed = st.selectbox("MonthClaimed", ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "?", "none"])
@@ -27,70 +53,42 @@ def get_form():
         submit = st.form_submit_button("Wyślij do predykcji")
 
     if submit:
-            errors = []
-            if make == "":
-                 errors.append("Pole 'Make' (producent pojazdu) nie może być puste.")
-            if month == "":
-                 errors.append("Wybierz miesiąc.")
-            if week_of_month == "":
-                errors.append("Wybierz tydzień miesiąca.")
-            if accident_area == "":
-                errors.append("Wybierz obszar wypadku.")
-            if month_claimed == "":
-                errors.append("Wybierz miesiac wypadku.")   
-            if marital_status == "":
-                errors.append("Wybierz stan cywilny.")
-            if fault == "":
-                errors.append("Wybierz rodzaj wypadku.")
-            if vehicle_category == "":
-                errors.append("Wybierz kategorie pojazdu.")
-            if policy_type == "":
-                errors.append("Wybierz typ polisy.")
-            if deductible == "":
-                errors.append("Wybierz kwote odsetek.")
-            if base_policy == "":
-                errors.append("Wybierz rodzaj polisy.")
-            if address_change == "":
-                errors.append("Wybierz rodzaj zmiany adresu.")
-            if agent_type == "":
-                errors.append("Wybierz rodzaj agenta.")
-            if police_report_filed == "":
-                errors.append("Wybierz czy została zgłoszona reklamacja.")
+        form_data = {
+            "Month": month,
+            "WeekOfMonth": week_of_month,
+            "Make": make,
+            "AccidentArea": accident_area,
+            "MonthClaimed": month_claimed,
+            "MaritalStatus": marital_status,
+            "Fault": fault,
+            "PolicyType": policy_type,
+            "VehicleCategory": vehicle_category,
+            "Deductible": deductible,
+            "PoliceReportFiled": police_report_filed,
+            "AgentType": agent_type,
+            "AddressChange_Claim": address_change,
+            "Year": year,
+            "BasePolicy": base_policy
+        }
 
-            if errors:
-                st.error("Wystąpiły błędy na formularzu:")
-                for err in errors:
-                    st.write(f"- {err}")
-            else:
-                payload = {
-                "Month": month,
-                "WeekOfMonth": week_of_month,
-                "Make": make,
-                "AccidentArea": accident_area,
-                "MonthClaimed": month_claimed,
-                "MaritalStatus": marital_status,
-                "Fault": fault,
-                "PolicyType": policy_type,
-                "VehicleCategory": vehicle_category,
-                "Deductible": deductible,
-                "PoliceReportFiled": police_report_filed,
-                "AgentType": agent_type,
-                "AddressChange_Claim": address_change,
-                "Year": year,
-                "BasePolicy": base_policy
-                }
-                result = send_post_request(payload, st)
-                if result:
-                    st.success("Wynik predykcji:")
-                    st.json(result)
+        errors = validate_form_data(form_data)
 
-    # Przycisk do CSV
+        if errors:
+            st.error("Wystąpiły błędy na formularzu:")
+            for err in errors:
+                st.write(f"- {err}")
+        else:
+            result = send_post_request(form_data, st)
+            if result:
+                st.success("Wynik predykcji:")
+                st.json(result)
+
     if st.button("Dane z CSV"):
         st.session_state.page = "csv"
         st.experimental_rerun()
 
-def get_csv_upload():
-    st.set_page_config(page_title="FortiFraud")
+def handle_csv_upload():
+    configure_app()
     st.title("Wyślij dane z pliku CSV do predykcji")
 
     uploaded_file = st.file_uploader("Upload plik CSV", type=["csv"])
@@ -116,17 +114,22 @@ def get_csv_upload():
                 if predictions:
                     st.success("Wyniki predykcji:")
                     result_df = pd.DataFrame(predictions)
-                    result_df.drop(columns=["status"], inplace=True)
+                    result_df.drop(columns=["status"], inplace=True, errors="ignore")
                     st.dataframe(result_df)
-                    st.download_button("Pobierz wyniki CSV", result_df.to_csv(index=False), file_name="predictions" + "_" + datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + ".csv", mime="text/csv")
+                    st.download_button(
+                        "Pobierz wyniki CSV",
+                        result_df.to_csv(index=False),
+                        file_name=f"predictions_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.csv",
+                        mime="text/csv"
+                    )
         except Exception as e:
             st.error(f"Błąd wczytywania pliku: {e}")
 
-
+# Routing logiki strony
 if "page" not in st.session_state:
     st.session_state.page = "form"
 
 if st.session_state.page == "form":
-    get_form()
+    handle_prediction_form()
 elif st.session_state.page == "csv":
-    get_csv_upload()
+    handle_csv_upload()
